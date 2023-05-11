@@ -1,0 +1,11 @@
+[Unit]
+Description=Lab50 set PARSEC labels on files and directories
+ConditionPathExists=/etc/parsec/mount/static
+Requires=parsecfs.mount
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/parsec-mount-static
+
+[Install]
+WantedBy=multi-user.target

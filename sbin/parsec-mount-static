@@ -1,0 +1,61 @@
+#!/bin/sh
+
+set -e
+
+[ -d "/parsecfs" ] || exit 0
+
+[ -f "/etc/parsec/mount/static" ] || exit 0
+
+IFS=: read -ra LABEL <<< $(/usr/sbin/pdpl-file /)
+LEVEL=${LABEL[0]}
+CATS=${LABEL[2]}
+
+name=$(basename $0)
+
+logger --id=$$ -t $name -p daemon.5 "using default level $LEVEL and category $CATS"
+
+set_mac_label() {
+    path=$1
+    label=$2
+
+    [ -d "$path" ] || return 0
+
+    [ -z "$NOTIFY_SOCKET" ] || systemd-notify --status="Processing $path with $label"
+    logger --id=$$ -t $name -p daemon.5 setting $label on $path
+
+    /usr/sbin/pdpl-file "$label" "$path"
+}
+
+while read line; do
+    read -ra spec <<< "$line";
+    path=${spec[0]};
+    level=$LEVEL
+    cats=$CATS
+    integrity=0
+    flags=
+    for option in "${spec[@]:1}"; do
+        key=${option%%=*};
+        value=${option#*=};
+        case $key in
+          "level")
+            level=$value
+            ;;
+          "integrity")
+            integrity=$value
+            ;;
+          "category")
+            cats=$value
+            ;;
+          "flags")
+            flags=$value
+            ;;
+          *)
+            logger --id=$$ -t $name -p daemon.3 "unknown option $key for $path"
+            ;;
+        esac;
+    done;
+    set_mac_label "$path" "$level:$integrity:$cats:$flags"
+done < /etc/parsec/mount/static
+
+[ -z "$NOTIFY_SOCKET" ] || systemd-notify --status="Static records processed"
+

@@ -1,0 +1,17 @@
+Source: parsec-mount-helper
+Section: admin
+Priority: optional
+Maintainer: Лаборатория 50 <team@lab50.net>
+Build-Depends: debhelper (>= 10)
+Standards-Version: 4.5.0
+Homepage: http://lab50.net
+Vcs-Git: https://github.com/laboratory50/parsec-mount-helper.git
+Vcs-Browser: https://github.com/laboratory50/parsec-mount-helper
+
+Package: parsec-mount-helper
+Architecture: all
+Multi-Arch: foreign
+Depends: systemd, pdp, bsdutils
+Description: утилиты монтирования с метками PARSEC
+ Пакет содержит утилиты для работы с метками PARSEC
+ КСЗ Astra Linux Special Edition.
